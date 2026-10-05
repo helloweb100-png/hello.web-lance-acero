@@ -26,12 +26,15 @@
   const $ = (sel, ctx = document) => ctx.querySelector(sel);
   const $$ = (sel, ctx = document) => Array.from(ctx.querySelectorAll(sel));
   const root = document.documentElement;
+  // Idioma de la página (es-MX en /, en en /en/). t(es, en) devuelve el texto del idioma activo.
+  const EN = root.lang.startsWith('en');
+  const t = (es, en) => (EN ? en : es);
   const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   const coarsePointer = window.matchMedia('(pointer: coarse)').matches;
   const wide = window.matchMedia('(min-width: 900px)');
   const NARROW = !wide.matches;
-  const GSAP_SRC = 'assets/vendor/gsap.min.js';
-  const ST_SRC = 'assets/vendor/ScrollTrigger.min.js';
+  const GSAP_SRC = (EN ? '../' : '') + 'assets/vendor/gsap.min.js';
+  const ST_SRC = (EN ? '../' : '') + 'assets/vendor/ScrollTrigger.min.js';
   const clamp = (v, a, b) => Math.min(b, Math.max(a, v));
   const TAU = Math.PI * 2;
   const D2R = Math.PI / 180;
@@ -119,12 +122,12 @@
     }
 
     const statuses = [
-      [0, 'Inicializando'],
-      [16, 'Cargando concesiones'],
-      [36, 'Calibrando ensayos'],
-      [58, 'Conectando con Corea y Japón'],
-      [80, 'Preparando la experiencia'],
-      [97, 'Listo'],
+      [0, t('Inicializando', 'Initializing')],
+      [16, t('Cargando concesiones', 'Loading concessions')],
+      [36, t('Calibrando ensayos', 'Calibrating assays')],
+      [58, t('Conectando con Corea y Japón', 'Connecting to Korea and Japan')],
+      [80, t('Preparando la experiencia', 'Preparing the experience')],
+      [97, t('Listo', 'Ready')],
     ];
 
     const minMs = reduceMotion ? 500 : CONFIG.loaderMinMs;
@@ -239,7 +242,7 @@
     menu.classList.toggle('is-open', open);
     menu.setAttribute('aria-hidden', String(!open));
     menuBtn.setAttribute('aria-expanded', String(open));
-    menuBtn.setAttribute('aria-label', open ? 'Cerrar menú' : 'Abrir menú');
+    menuBtn.setAttribute('aria-label', open ? t('Cerrar menú', 'Close menu') : t('Abrir menú', 'Open menu'));
     if (open) { root.style.overflow = 'hidden'; if (lenis) lenis.stop(); }
     else { root.style.overflow = ''; if (lenis && !root.classList.contains('is-loading')) lenis.start(); }
   }
@@ -321,7 +324,7 @@
   }
 
   function formatNumber(v, dec) {
-    return v.toLocaleString('es-MX', { minimumFractionDigits: dec, maximumFractionDigits: dec });
+    return v.toLocaleString(t('es-MX', 'en-US'), { minimumFractionDigits: dec, maximumFractionDigits: dec });
   }
 
   function animateCount(el, to, dec = 0, dur = 1900) {
@@ -402,7 +405,7 @@
   const CITIES = {
     mx: { name: 'Monclova', lat: 26.9, lon: -101.42, color: '#ff4b58' },
     kr: { name: 'Busan', lat: 35.18, lon: 129.07, color: '#ffffff' },
-    jp: { name: 'Tokio', lat: 35.68, lon: 139.69, color: '#ffffff' },
+    jp: { name: t('Tokio', 'Tokyo'), lat: 35.68, lon: 139.69, color: '#ffffff' },
   };
   const ROUTES = [['mx', 'kr'], ['mx', 'jp']];
 
@@ -889,21 +892,23 @@
      8. EXPLORADOR DE ENSAYOS
      ========================================================================== */
   const ELEMENTS = [
-    ['Au', 'Oro'], ['Ag', 'Plata'], ['Pt', 'Platino'], ['Pd', 'Paladio'], ['Ir', 'Iridio'],
-    ['Rh', 'Rodio'], ['Ru', 'Rutenio'], ['Os', 'Osmio'], ['Re', 'Renio'],
+    ['Au', t('Oro', 'Gold')], ['Ag', t('Plata', 'Silver')], ['Pt', t('Platino', 'Platinum')], ['Pd', t('Paladio', 'Palladium')], ['Ir', t('Iridio', 'Iridium')],
+    ['Rh', t('Rodio', 'Rhodium')], ['Ru', t('Rutenio', 'Ruthenium')], ['Os', t('Osmio', 'Osmium')], ['Re', t('Renio', 'Rhenium')],
   ];
+  const NA_ND = t('No detectado', 'Not detected');
+  const NA_NA = t('No analizado', 'Not analyzed');
   const ASSAYS = {
     mulatos: {
-      title: 'Mena directa, mina Mulatos (muestra SMP-1)', unit: 'oz/ton', dec: 1,
+      title: t('Mena directa, mina Mulatos (muestra SMP-1)', 'Direct ore, Mulatos mine (sample SMP-1)'), unit: 'oz/ton', dec: 1,
       values: { Au: 1.4, Ag: 2.5, Pt: 14.0, Pd: 2.8, Ir: 16.0, Rh: 4.4, Ru: 2.5, Os: 13.7, Re: 9.7 },
     },
     busan: {
-      title: 'Lingote fundido, Busan, Corea del Sur (muestra SMP-3)', unit: 'oz/ton', dec: 1,
-      values: { Au: 8.4, Ag: 'No detectado', Pt: 20.2, Pd: 5.0, Ir: 24.7, Rh: 5.7, Ru: 8.1, Os: 44.8, Re: 11.9 },
+      title: t('Lingote fundido, Busan, Corea del Sur (muestra SMP-3)', 'Smelted ingot, Busan, South Korea (sample SMP-3)'), unit: 'oz/ton', dec: 1,
+      values: { Au: 8.4, Ag: NA_ND, Pt: 20.2, Pd: 5.0, Ir: 24.7, Rh: 5.7, Ru: 8.1, Os: 44.8, Re: 11.9 },
     },
     gavilan: {
-      title: 'Concentrado 3, mina El Gavilán', unit: 'g/ton', dec: 2,
-      values: { Au: 3.8, Ag: 230.0, Pt: 6.66, Pd: 5.83, Ir: 15.0, Rh: 39.98, Ru: 'No analizado', Os: 'No analizado', Re: 'No analizado' },
+      title: t('Concentrado 3, mina El Gavilán', 'Concentrate 3, El Gavilán mine'), unit: 'g/ton', dec: 2,
+      values: { Au: 3.8, Ag: 230.0, Pt: 6.66, Pd: 5.83, Ir: 15.0, Rh: 39.98, Ru: NA_NA, Os: NA_NA, Re: NA_NA },
     },
   };
 
@@ -1087,15 +1092,15 @@
     };
 
     const validators = {
-      nombre: (v) => (v.trim().length >= 3 ? '' : 'Escriba su nombre completo.'),
+      nombre: (v) => (v.trim().length >= 3 ? '' : t('Escriba su nombre completo.', 'Please enter your full name.')),
       contacto: (v) => {
         const s = v.trim();
-        if (!s) return 'Indique un teléfono o un correo para responderle.';
-        if (s.includes('@')) return /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(s) ? '' : 'Revise el formato del correo electrónico.';
+        if (!s) return t('Indique un teléfono o un correo para responderle.', 'Enter a phone number or email so we can reply.');
+        if (s.includes('@')) return /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(s) ? '' : t('Revise el formato del correo electrónico.', 'Check the email format.');
         const digits = s.replace(/\D/g, '');
-        return digits.length >= 10 && digits.length <= 15 ? '' : 'Escriba un teléfono de al menos 10 dígitos.';
+        return digits.length >= 10 && digits.length <= 15 ? '' : t('Escriba un teléfono de al menos 10 dígitos.', 'Enter a phone number with at least 10 digits.');
       },
-      mensaje: (v) => (v.length <= 800 ? '' : 'El mensaje es muy largo (máximo 800 caracteres).'),
+      mensaje: (v) => (v.length <= 800 ? '' : t('El mensaje es muy largo (máximo 800 caracteres).', 'The message is too long (800 characters maximum).')),
     };
 
     function check(key) {
@@ -1118,12 +1123,12 @@
       const v = (id) => $(id).value.trim();
       const empresa = v('#f-company');
       const lines = [
-        `Hola, soy ${v('#f-name')}${empresa ? ` de ${empresa}` : ''}.`,
-        `Me interesa: ${$('#f-topic').value}.`,
+        t(`Hola, soy ${v('#f-name')}${empresa ? ` de ${empresa}` : ''}.`, `Hello, I'm ${v('#f-name')}${empresa ? ` from ${empresa}` : ''}.`),
+        t(`Me interesa: ${$('#f-topic').value}.`, `I'm interested in: ${$('#f-topic').value}.`),
       ];
       if (v('#f-msg')) lines.push(v('#f-msg'));
-      lines.push(`Mi contacto: ${v('#f-contact')}.`);
-      lines.push('(Mensaje enviado desde el sitio web de Lance Internacional)');
+      lines.push(t(`Mi contacto: ${v('#f-contact')}.`, `My contact: ${v('#f-contact')}.`));
+      lines.push(t('(Mensaje enviado desde el sitio web de Lance Internacional)', '(Message sent from the Lance Internacional website)'));
       return `https://wa.me/${CONFIG.whatsapp}?text=${encodeURIComponent(lines.join('\n'))}`;
     }
 
@@ -1137,7 +1142,7 @@
         return;
       }
       btn.disabled = true;
-      label.textContent = 'Abriendo WhatsApp...';
+      label.textContent = t('Abriendo WhatsApp...', 'Opening WhatsApp...');
       const url = buildUrl();
       setTimeout(() => {
         const w = window.open(url, '_blank', 'noopener');
@@ -1158,7 +1163,7 @@
   function initWhatsApp() {
     const wa = $('#wa');
     if (!wa) return;
-    wa.href = `https://wa.me/${CONFIG.whatsapp}?text=${encodeURIComponent('Hola, me interesa conocer más sobre Lance Internacional.')}`;
+    wa.href = `https://wa.me/${CONFIG.whatsapp}?text=${encodeURIComponent(t('Hola, me interesa conocer más sobre Lance Internacional.', 'Hello, I would like to learn more about Lance Internacional.'))}`;
     let shown = false;
     try { shown = sessionStorage.getItem('lance-wa-tip') === '1'; } catch (_) { /* noop */ }
     if (shown) return;

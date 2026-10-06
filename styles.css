@@ -544,19 +544,47 @@ html.is-loading { animation: unlockScroll 0s 12s forwards; }
   background: var(--red);
 }
 
-.nav__lang {
-  display: none;
+/* Selector de idioma ES / EN: el indicador se desliza hacia el idioma activo */
+.lang {
+  position: relative;
+  display: inline-grid;
+  grid-template-columns: 1fr 1fr;
   flex: none;
-  padding: 0.45rem 0.8rem;
-  font-size: 0.8rem;
-  font-weight: 600;
-  letter-spacing: 0.04em;
-  color: var(--ink-2);
-  border: 1px solid rgba(10, 21, 48, 0.16);
+  padding: 3px;
   border-radius: var(--r-pill);
-  transition: color 0.3s, background-color 0.3s;
+  background: rgba(10, 21, 48, 0.07);
 }
-.nav__lang:hover { color: var(--ink); background: rgba(10, 21, 48, 0.06); }
+.lang::before {
+  content: "";
+  position: absolute;
+  top: 3px;
+  bottom: 3px;
+  left: 3px;
+  width: calc(50% - 3px);
+  border-radius: var(--r-pill);
+  background: var(--navy-900);
+  transition: transform 0.45s var(--ease);
+}
+html[lang^="en"] .lang::before { transform: translateX(100%); }
+.lang__btn {
+  position: relative;
+  min-width: 2.5rem;
+  padding: 0.4rem 0.7rem;
+  font-size: 0.78rem;
+  font-weight: 600;
+  line-height: 1;
+  letter-spacing: 0.05em;
+  color: var(--ink-2);
+  border-radius: var(--r-pill);
+  transition: color 0.3s;
+}
+.lang__btn[aria-pressed="true"] { color: #fff; }
+.nav__lang { display: none; }
+.lang--menu { justify-self: start; margin-top: 1.25rem; background: rgba(255, 255, 255, 0.12); }
+.lang--menu::before { background: #fff; }
+.lang--menu .lang__btn { padding: 0.65rem 1.2rem; font-size: 0.95rem; color: rgba(255, 255, 255, 0.78); }
+.lang--menu .lang__btn[aria-pressed="true"] { color: var(--navy-900); }
+.menu__inner .lang { opacity: 0; transform: translateY(24px); transition: opacity 0.6s var(--ease), transform 0.8s var(--ease); }
 
 .nav__cta { display: none; }
 
@@ -623,12 +651,22 @@ html.is-loading { animation: unlockScroll 0s 12s forwards; }
 
 @media (min-width: 1100px) {
   .nav__links { display: flex; }
-  .nav__lang { display: block; }
+  .nav__lang { display: inline-grid; }
   .nav__cta { display: inline-flex; }
   .nav__toggle { display: none; }
   .menu { display: none; }
   .nav__brand img { height: 34px; }
   .nav__links a { padding: 0.55rem 0.7rem; }
+}
+/* Barra más compacta entre 1100 y 1279 px para que quepa el selector de idioma sin recortar el botón */
+@media (min-width: 1100px) and (max-width: 1279px) {
+  .nav__bar { gap: 0.5rem; }
+  .nav__links { gap: 0; }
+  .nav__links a { padding: 0.55rem 0.4rem; }
+  .nav__links a.is-current::after { left: 0.4rem; right: 0.4rem; }
+}
+@media (min-width: 1100px) and (max-width: 1319px) {
+  .nav__lang .lang__btn { min-width: 1.9rem; padding: 0.4rem 0.45rem; }
 }
 @media (min-width: 1280px) {
   .nav__brand img { height: 40px; }

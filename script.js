@@ -26,15 +26,16 @@
   const $ = (sel, ctx = document) => ctx.querySelector(sel);
   const $$ = (sel, ctx = document) => Array.from(ctx.querySelectorAll(sel));
   const root = document.documentElement;
-  // Idioma de la página (es-MX en /, en en /en/). t(es, en) devuelve el texto del idioma activo.
-  const EN = root.lang.startsWith('en');
-  const t = (es, en) => (EN ? en : es);
+  // Idioma activo: lo cambia i18n.js sobre <html lang>. t(es, en) devuelve el texto del idioma actual.
+  const isEN = () => root.lang.toLowerCase().startsWith('en');
+  const t = (es, en) => (isEN() ? en : es);
+  const trText = (s) => (window.LanceI18n ? window.LanceI18n.tr(s) : s);
   const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   const coarsePointer = window.matchMedia('(pointer: coarse)').matches;
   const wide = window.matchMedia('(min-width: 900px)');
   const NARROW = !wide.matches;
-  const GSAP_SRC = (EN ? '../' : '') + 'assets/vendor/gsap.min.js';
-  const ST_SRC = (EN ? '../' : '') + 'assets/vendor/ScrollTrigger.min.js';
+  const GSAP_SRC = 'assets/vendor/gsap.min.js';
+  const ST_SRC = 'assets/vendor/ScrollTrigger.min.js';
   const clamp = (v, a, b) => Math.min(b, Math.max(a, v));
   const TAU = Math.PI * 2;
   const D2R = Math.PI / 180;
@@ -250,6 +251,9 @@
 
   function initNav() {
     if (menuBtn) menuBtn.addEventListener('click', () => setMenu(!menuOpen));
+    document.addEventListener('langchange', () => {
+      if (menuBtn) menuBtn.setAttribute('aria-label', menuOpen ? t('Cerrar menú', 'Close menu') : t('Abrir menú', 'Open menu'));
+    });
     document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeMenu(); });
     window.matchMedia('(min-width: 1100px)').addEventListener('change', (m) => { if (m.matches) closeMenu(); });
 
@@ -291,7 +295,7 @@
      4. TITULARES, REVELADO Y CONTADORES
      ========================================================================== */
   function splitWords(el) {
-    const text = el.textContent.trim().replace(/\s+/g, ' ');
+    const text = trText(el.textContent.trim().replace(/\s+/g, ' '));
     el.setAttribute('aria-label', text);
     el.textContent = '';
     text.split(' ').forEach((word, i, arr) => {
@@ -310,6 +314,8 @@
 
   function initReveal() {
     $$('[data-split]').forEach(splitWords);
+    // Al cambiar de idioma se vuelven a armar los titulares con el texto nuevo
+    document.addEventListener('langchange', () => $$('[data-split]').forEach(splitWords));
     const targets = $$('[data-reveal], [data-split], .compare__row');
     if (!('IntersectionObserver' in window)) { targets.forEach((t) => t.classList.add('is-in')); return; }
     const io = new IntersectionObserver((entries) => {
@@ -405,7 +411,7 @@
   const CITIES = {
     mx: { name: 'Monclova', lat: 26.9, lon: -101.42, color: '#ff4b58' },
     kr: { name: 'Busan', lat: 35.18, lon: 129.07, color: '#ffffff' },
-    jp: { name: t('Tokio', 'Tokyo'), lat: 35.68, lon: 139.69, color: '#ffffff' },
+    jp: { name: 'Tokio', nameEn: 'Tokyo', lat: 35.68, lon: 139.69, color: '#ffffff' },
   };
   const ROUTES = [['mx', 'kr'], ['mx', 'jp']];
 
@@ -695,7 +701,7 @@
         ctx.fillStyle = c.color;
         ctx.beginPath(); ctx.arc(p.sx, p.sy, dpr * 3.4, 0, TAU); ctx.fill();
         ctx.fillStyle = 'rgba(255, 255, 255, 0.92)';
-        ctx.fillText(c.name, p.sx + dpr * 11, p.sy - dpr * 9);
+        ctx.fillText(isEN() ? (c.nameEn || c.name) : c.name, p.sx + dpr * 11, p.sy - dpr * 9);
         ctx.globalAlpha = 1;
       });
 
@@ -891,26 +897,24 @@
   /* ==========================================================================
      8. EXPLORADOR DE ENSAYOS
      ========================================================================== */
-  const ELEMENTS = [
+  const ELEMENTS = () => [
     ['Au', t('Oro', 'Gold')], ['Ag', t('Plata', 'Silver')], ['Pt', t('Platino', 'Platinum')], ['Pd', t('Paladio', 'Palladium')], ['Ir', t('Iridio', 'Iridium')],
     ['Rh', t('Rodio', 'Rhodium')], ['Ru', t('Rutenio', 'Ruthenium')], ['Os', t('Osmio', 'Osmium')], ['Re', t('Renio', 'Rhenium')],
   ];
-  const NA_ND = t('No detectado', 'Not detected');
-  const NA_NA = t('No analizado', 'Not analyzed');
-  const ASSAYS = {
+  const ASSAYS = () => ({
     mulatos: {
       title: t('Mena directa, mina Mulatos (muestra SMP-1)', 'Direct ore, Mulatos mine (sample SMP-1)'), unit: 'oz/ton', dec: 1,
       values: { Au: 1.4, Ag: 2.5, Pt: 14.0, Pd: 2.8, Ir: 16.0, Rh: 4.4, Ru: 2.5, Os: 13.7, Re: 9.7 },
     },
     busan: {
       title: t('Lingote fundido, Busan, Corea del Sur (muestra SMP-3)', 'Smelted ingot, Busan, South Korea (sample SMP-3)'), unit: 'oz/ton', dec: 1,
-      values: { Au: 8.4, Ag: NA_ND, Pt: 20.2, Pd: 5.0, Ir: 24.7, Rh: 5.7, Ru: 8.1, Os: 44.8, Re: 11.9 },
+      values: { Au: 8.4, Ag: t('No detectado', 'Not detected'), Pt: 20.2, Pd: 5.0, Ir: 24.7, Rh: 5.7, Ru: 8.1, Os: 44.8, Re: 11.9 },
     },
     gavilan: {
       title: t('Concentrado 3, mina El Gavilán', 'Concentrate 3, El Gavilán mine'), unit: 'g/ton', dec: 2,
-      values: { Au: 3.8, Ag: 230.0, Pt: 6.66, Pd: 5.83, Ir: 15.0, Rh: 39.98, Ru: NA_NA, Os: NA_NA, Re: NA_NA },
+      values: { Au: 3.8, Ag: 230.0, Pt: 6.66, Pd: 5.83, Ir: 15.0, Rh: 39.98, Ru: t('No analizado', 'Not analyzed'), Os: t('No analizado', 'Not analyzed'), Re: t('No analizado', 'Not analyzed') },
     },
-  };
+  });
 
   function initAssays() {
     const tabsWrap = $('#assayTabs');
@@ -924,14 +928,14 @@
     let seen = false;
 
     function render(id, animate) {
-      const data = ASSAYS[id];
+      const data = ASSAYS()[id];
       current = id;
       titleEl.textContent = data.title;
       unitEl.textContent = data.unit;
       const nums = Object.values(data.values).filter((v) => typeof v === 'number');
       const max = Math.max(...nums);
       grid.classList.remove('is-on');
-      grid.innerHTML = ELEMENTS.map(([sym, name]) => {
+      grid.innerHTML = ELEMENTS().map(([sym, name]) => {
         const v = data.values[sym];
         const isNum = typeof v === 'number';
         return `<li class="assay-cell">
@@ -971,6 +975,7 @@
 
     render('mulatos', false);
     grid.classList.remove('is-on');
+    document.addEventListener('langchange', () => { render(current, false); if (!seen) grid.classList.remove('is-on'); });
     new IntersectionObserver((entries, io) => {
       if (entries[0].isIntersecting && !seen) { seen = true; render(current, true); io.disconnect(); }
     }, { threshold: 0.35 }).observe(panel);
@@ -1083,7 +1088,6 @@
     const ok = $('#formOk');
     const btn = $('button[type="submit"]', form);
     const label = $('.btn__label', btn);
-    const labelDefault = label.textContent;
 
     const fields = {
       nombre: { input: $('#f-name'), err: $('#e-name') },
@@ -1119,6 +1123,13 @@
       });
     });
 
+    // Al cambiar de idioma se actualizan los avisos de error que estén a la vista
+    document.addEventListener('langchange', () => {
+      Object.keys(fields).forEach((k) => {
+        if (fields[k].input.closest('.field').classList.contains('is-invalid')) check(k);
+      });
+    });
+
     function buildUrl() {
       const v = (id) => $(id).value.trim();
       const empresa = v('#f-company');
@@ -1149,7 +1160,7 @@
         if (!w) window.location.href = url;
         ok.hidden = false;
         btn.disabled = false;
-        label.textContent = labelDefault;
+        label.textContent = t('Enviar por WhatsApp', 'Send via WhatsApp');
       }, reduceMotion ? 0 : 700);
     });
 
@@ -1163,7 +1174,11 @@
   function initWhatsApp() {
     const wa = $('#wa');
     if (!wa) return;
-    wa.href = `https://wa.me/${CONFIG.whatsapp}?text=${encodeURIComponent(t('Hola, me interesa conocer más sobre Lance Internacional.', 'Hello, I would like to learn more about Lance Internacional.'))}`;
+    const setHref = () => {
+      wa.href = `https://wa.me/${CONFIG.whatsapp}?text=${encodeURIComponent(t('Hola, me interesa conocer más sobre Lance Internacional.', 'Hello, I would like to learn more about Lance Internacional.'))}`;
+    };
+    setHref();
+    document.addEventListener('langchange', setHref);
     let shown = false;
     try { shown = sessionStorage.getItem('lance-wa-tip') === '1'; } catch (_) { /* noop */ }
     if (shown) return;

@@ -11,9 +11,6 @@
   <meta name="author" content="Lance Internacional, S.A. de C.V.">
   <meta name="robots" content="index, follow, max-image-preview:large">
   <link rel="canonical" href="https://www.lanceint.com.mx/">
-  <link rel="alternate" hreflang="es-MX" href="https://www.lanceint.com.mx/">
-  <link rel="alternate" hreflang="en" href="https://www.lanceint.com.mx/en/">
-  <link rel="alternate" hreflang="x-default" href="https://www.lanceint.com.mx/">
   <meta name="theme-color" content="#081634">
   <meta name="format-detection" content="telephone=yes">
 
@@ -170,7 +167,10 @@
       <a href="#contacto">Contacto</a>
     </nav>
 
-    <a class="nav__lang" href="en/index.html" hreflang="en" lang="en" aria-label="View this site in English">EN</a>
+    <div class="lang nav__lang" role="group" aria-label="Idioma">
+      <button class="lang__btn" type="button" data-set-lang="es" lang="es" aria-label="Español" aria-pressed="true">ES</button>
+      <button class="lang__btn" type="button" data-set-lang="en" lang="en" aria-label="English" aria-pressed="false">EN</button>
+    </div>
 
     <a class="btn btn--primary btn--sm nav__cta" href="#contacto" data-magnetic>
       <span>Solicitar reunión</span>
@@ -195,7 +195,10 @@
       <span>Solicitar reunión</span>
       <svg class="ico" aria-hidden="true"><use href="#i-arrow-up-right"/></svg>
     </a>
-    <a class="menu__lang" href="en/index.html" hreflang="en" lang="en">English</a>
+    <div class="lang lang--menu" role="group" aria-label="Idioma">
+      <button class="lang__btn" type="button" data-set-lang="es" lang="es" aria-label="Español" aria-pressed="true">ES</button>
+      <button class="lang__btn" type="button" data-set-lang="en" lang="en" aria-label="English" aria-pressed="false">EN</button>
+    </div>
   </nav>
 </div>
 
@@ -916,6 +919,7 @@
 
 <!-- Scroll suave (Lenis, MIT). GSAP y ScrollTrigger se cargan bajo demanda desde script.js (solo escritorio) -->
 <script src="assets/vendor/lenis.min.js" defer></script>
+<script src="i18n.js" defer></script>
 <script src="script.js" defer></script>
 </body>
 </html>

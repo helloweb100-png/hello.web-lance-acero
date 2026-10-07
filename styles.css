@@ -579,7 +579,7 @@ html[lang^="en"] .lang::before { transform: translateX(100%); }
   transition: color 0.3s;
 }
 .lang__btn[aria-pressed="true"] { color: #fff; }
-.nav__lang { display: none; }
+.nav__lang { margin-left: auto; }
 .lang--menu { justify-self: start; margin-top: 1.25rem; background: rgba(255, 255, 255, 0.12); }
 .lang--menu::before { background: #fff; }
 .lang--menu .lang__btn { padding: 0.65rem 1.2rem; font-size: 0.95rem; color: rgba(255, 255, 255, 0.78); }
@@ -593,7 +593,6 @@ html[lang^="en"] .lang::before { transform: translateX(100%); }
   flex: none;
   width: 44px;
   height: 44px;
-  margin-left: auto;
   border-radius: 50%;
   background: var(--navy-900);
 }
@@ -651,7 +650,7 @@ html[lang^="en"] .lang::before { transform: translateX(100%); }
 
 @media (min-width: 1100px) {
   .nav__links { display: flex; }
-  .nav__lang { display: inline-grid; }
+  .nav__lang { margin-left: 0; }
   .nav__cta { display: inline-flex; }
   .nav__toggle { display: none; }
   .menu { display: none; }
@@ -665,8 +664,13 @@ html[lang^="en"] .lang::before { transform: translateX(100%); }
   .nav__links a { padding: 0.55rem 0.4rem; }
   .nav__links a.is-current::after { left: 0.4rem; right: 0.4rem; }
 }
-@media (min-width: 1100px) and (max-width: 1319px) {
+@media (max-width: 1319px) {
   .nav__lang .lang__btn { min-width: 1.9rem; padding: 0.4rem 0.45rem; }
+}
+/* En móvil el selector de idioma queda visible en la barra: el logo se encoge si hace falta para que quepa */
+@media (max-width: 1099px) {
+  .nav__brand { flex: 0 1 auto; min-width: 0; }
+  .nav__brand img { max-width: 100%; object-fit: contain; object-position: left center; }
 }
 @media (min-width: 1280px) {
   .nav__brand img { height: 40px; }
